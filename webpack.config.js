@@ -1,6 +1,6 @@
 var path = require('path');
 var webpack = require('webpack');
-var ExtractTextPlugin = require("extract-text-webpack-plugin");//webpack单独打包css插件
+var ExtractTextPlugin = require("extract-text-webpack-plugin");//webpack单独打包css的插件
 
 var env = process.env.NODE_ENV; //获取环境变量
 
@@ -45,7 +45,7 @@ module.exports = {
     resolve: {
         // 现在你require文件的时候可以直接使用require('file')，不用使用require('file.js')
         modulesDirectories: ['node_modules', 'src'],
-        extensions: ['', '.js', '.json', '.coffee']
+        extensions: ['', '.js', '.jsx', '.json', '.coffee']
     }
 };
 

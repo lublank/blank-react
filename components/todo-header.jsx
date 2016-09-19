@@ -8,7 +8,7 @@ class Header extends React.Component {
         return (
             <header id="header">
                 <h1>todos</h1>
-                <input type="text" id="new_todo" placeholder="What needs to be done?" autofocus="autofocus"/>
+                <input type="text" id="new_todo" placeholder="What needs to be done?" />
             </header>
         );
     }
