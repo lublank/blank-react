@@ -7,10 +7,13 @@ class ListItem extends React.Component {
     }
     render() {
         return (
-            <li className="completed">
+            <li className={this.props.completed ? "completed" : ""}>
                 <div>
-                    <input type="checkbox" className="toggle" />
-                        <label>123</label>
+                    <input type="checkbox"
+                           className="toggle"
+                           onClick={this.props.onClick}
+                    />
+                        <label>{this.props.text}</label>
                         <button className="destroy"></button>
                 </div>
             </li>

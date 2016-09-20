@@ -38,8 +38,7 @@ module.exports = {
             exclude: /node_modules/, //排除node_module目录文件
             //include: __dirname,
             loader: ExtractTextPlugin.extract("style-loader", "css-loader!less-loader")
-        }
-        ]
+        }]
     },
     //如果你希望在require文件时省略文件的扩展名，只需要在webpack.config.js中添加 resolve.extensions 来配置。
     resolve: {

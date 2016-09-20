@@ -10,9 +10,17 @@ class Main extends React.Component {
     render() {
         return (
             <section id="main">
-                <input type="checkbox" id="toggle_all" />
+                <input type="checkbox"
+                       id="toggle_all"
+                       onClick={this.onClickAll}
+                />
                     <ul id="todo_list">
-                        <ListItem />
+                        {this.props.todos.map((todo, index) =>
+                            <ListItem {...todo}
+                                key={index}
+                                onClick={() => this.props.onTodoClick(index)}
+                            />
+                        )}
                     </ul>
             </section>
         );
