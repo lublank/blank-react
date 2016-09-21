@@ -58,8 +58,6 @@ body {
     position: absolute;
     top: -42px;
     left: 15px;
-    width: 15px;
-    height: 15px;
     text-align: center;
     border: none;
 }
@@ -118,10 +116,25 @@ body {
     position: absolute;
     top: 0;
     bottom: 0;
-    height: 15px;
+    height: 22px;
     width: 54px;
     margin: auto 0;
     border: none;
+
+}
+.icon {
+    display: inline-block;
+    width: 23px;
+    height: 22px;
+    background: url(blue.png) 0 0 no-repeat;
+    border: none;
+    cursor: pointer;
+    &:hover {
+        background-position: -25px 0;
+    }
+    &.checked {
+        background-position: -49px 0;
+    }
 }
 button {
     margin: 0;

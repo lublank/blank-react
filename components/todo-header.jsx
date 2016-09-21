@@ -7,6 +7,7 @@ let ENTER_KEY_CODE = 13;
 class Header extends React.Component {
     constructor(props) {
         super(props);
+        this._onKeyDown = this._onKeyDown.bind(this);
     }
 
     /**
@@ -19,8 +20,6 @@ class Header extends React.Component {
             let node = this.refs.input;
             let text = node.value.trim();
             if(text !== '') {
-                //获取当前时间戳，以作为key
-                //let timeStamp = Date.parse(new Date());
                 this.props.onAddTodo(text);
                 node.value = '';
             }

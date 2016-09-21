@@ -8,6 +8,7 @@ import {
     ADD_TODO,
     DELETE_TODO,
     COMPLETE_TODO,
+    TOGGLE_ALL,
     SET_DISPLAY_FILTER,
     DisplayFilter
 } from '../actions/action';
@@ -33,7 +34,6 @@ function todos(state = [], action) {
                 ...state,
                 {
                     text: action.text,
-                    //key: action.key,
                     completed: false
                 }
             ];
@@ -50,6 +50,13 @@ function todos(state = [], action) {
                 }),
                 ...state.slice(action.index + 1)    //再把当前位置的后面部分接上
             ];
+        case TOGGLE_ALL:
+            return state.map(row => {
+                return {
+                    text: row.text,
+                    completed: action.isChecked
+                }
+            });
         default:
             return state;
     }

@@ -7,24 +7,27 @@ class Main extends React.Component {
     constructor(props) {
         super(props);
     }
-    //全选
-    onClickAll(e) {
-        console.log('全选');
-    }
+
     render() {
+        let {
+            toggleAll,
+            onTodoClick,
+            onDeleteClick,
+            onToggleClick
+        } = this.props;
         return (
             <section id="main">
-                <input type="checkbox"
-                       id="toggle_all"
-                       onClick={this.onClickAll}
-                />
+                <a className={toggleAll ? "icon" : "icon checked"}
+                   id="toggle_all"
+                   onClick={() => onToggleClick(toggleAll)}
+                ></a>
                 <ul id="todo_list">
                     {this.props.todos.map((todo, index) =>
                         <ListItem {...todo}
                             key={index}
                             timpIndex={index}
-                            onClick={() => this.props.onTodoClick(index)}
-                            onDelClick={() => this.props.onDeleteClick(index)}
+                            onClick={() => {onTodoClick(index); console.log(index);}}
+                            onDelClick={() => onDeleteClick(index)}
                         />
                     )}
                 </ul>

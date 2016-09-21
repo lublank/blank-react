@@ -5,6 +5,7 @@
  */
 //action静态类型
 export const ADD_TODO = 'ADD_TODO';
+export const TOGGLE_ALL = 'TOGGLE_ALL';
 export const DELETE_TODO = 'DELETE_TODO';
 export const COMPLETE_TODO = 'COMPLETE_TODO';
 export const SET_DISPLAY_FILTER = 'SET_DISPLAY_FILTER';
@@ -17,7 +18,7 @@ export const DisplayFilter = {
 };
 
 //添加todo
-export function addTodo(text, key) {
+export function addTodo(text) {
     return {
         type: ADD_TODO,
         text
@@ -42,5 +43,12 @@ export function deleteTodo(index) {
     return {
         type: DELETE_TODO,
         index
+    }
+}
+//全选
+export function toggleAll(checked) {
+    return {
+        type: TOGGLE_ALL,
+        isChecked: checked
     }
 }

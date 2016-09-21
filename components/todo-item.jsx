@@ -9,18 +9,20 @@ class ListItem extends React.Component {
         let {
             timpIndex,
             text,
-            onClick
+            onClick,
+            completed
         } = this.props;
-console.log(timpIndex);
+
         return (
             <li key={timpIndex}
-                className={this.props.completed ? "completed" : ""}
+                className={completed ? "completed" : ""}
                 >
                 <div>
-                    <input type="checkbox"
-                           className="toggle"
+                    <div className="toggle">
+                        <a className={completed ? "icon checked" : "icon"}
                            onClick={onClick}
-                    />
+                        ></a>
+                    </div>
                         <label>{text}</label>
                         <button className="destroy"
                                 onClick={this.props.onDelClick}

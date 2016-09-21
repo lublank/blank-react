@@ -8,6 +8,7 @@ import {
     deleteTodo,
     completeTodo,
     setDisplayFilter,
+    toggleAll,
     DisplayFilter
 } from './actions/action'
 
@@ -24,10 +25,12 @@ class App extends React.Component {
         let todoList = '',
             todoFooter;
         //当有list时才显示main列表
-        if(visibleTodos.length > 0) {
+        if(emptyTodos) {
             todoList = <Main todos={visibleTodos}
+                             toggleAll={!!itemLeft}
                              onTodoClick={index => dispatch(completeTodo(index))}
                              onDeleteClick={index => dispatch(deleteTodo(index))}
+                             onToggleClick={isChecked => dispatch(toggleAll(isChecked))}
                         />;
         }
 
@@ -71,7 +74,7 @@ function injectState(state) {
         visibleTodos: checkTodos(state.todos, state.displayFilter), //当前状态下要显示的列表
         displayFilter: state.displayFilter,  //当前状态
         emptyTodos: state.todos.length, //是否有todo list，用于是否显示footer
-        itemLeft: getItemLeft(state.todos)
+        itemLeft: getItemLeft(state.todos)  //剩余todo事项
     }
 }
 

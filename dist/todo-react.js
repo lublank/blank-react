@@ -23130,13 +23130,17 @@
 	            var todoList = '',
 	                todoFooter = void 0;
 	            //当有list时才显示main列表
-	            if (visibleTodos.length > 0) {
+	            if (emptyTodos) {
 	                todoList = _react2.default.createElement(_todoMain2.default, { todos: visibleTodos,
+	                    toggleAll: !!itemLeft,
 	                    onTodoClick: function onTodoClick(index) {
 	                        return dispatch((0, _action.completeTodo)(index));
 	                    },
 	                    onDeleteClick: function onDeleteClick(index) {
 	                        return dispatch((0, _action.deleteTodo)(index));
+	                    },
+	                    onToggleClick: function onToggleClick(isChecked) {
+	                        return dispatch((0, _action.toggleAll)(isChecked));
 	                    }
 	                });
 	            }
@@ -23196,7 +23200,7 @@
 	        visibleTodos: checkTodos(state.todos, state.displayFilter), //当前状态下要显示的列表
 	        displayFilter: state.displayFilter, //当前状态
 	        emptyTodos: state.todos.length, //是否有todo list，用于是否显示footer
-	        itemLeft: getItemLeft(state.todos)
+	        itemLeft: getItemLeft(state.todos) //剩余todo事项
 	    };
 	}
 
@@ -23244,7 +23248,10 @@
 	    function Header(props) {
 	        _classCallCheck(this, Header);
 
-	        return _possibleConstructorReturn(this, (Header.__proto__ || Object.getPrototypeOf(Header)).call(this, props));
+	        var _this = _possibleConstructorReturn(this, (Header.__proto__ || Object.getPrototypeOf(Header)).call(this, props));
+
+	        _this._onKeyDown = _this._onKeyDown.bind(_this);
+	        return _this;
 	    }
 
 	    /**
@@ -23261,8 +23268,6 @@
 	                var node = this.refs.input;
 	                var text = node.value.trim();
 	                if (text !== '') {
-	                    //获取当前时间戳，以作为key
-	                    //let timeStamp = Date.parse(new Date());
 	                    this.props.onAddTodo(text);
 	                    node.value = '';
 	                }
@@ -23317,6 +23322,7 @@
 	exports.completeTodo = completeTodo;
 	exports.setDisplayFilter = setDisplayFilter;
 	exports.deleteTodo = deleteTodo;
+	exports.toggleAll = toggleAll;
 	/**
 	 * action文件，Action向store派发指令，action函数会返回一个带有type的Object，
 	 * store将会根据不同的type来执行相应的方法。
@@ -23324,6 +23330,7 @@
 	 */
 	//action静态类型
 	var ADD_TODO = exports.ADD_TODO = 'ADD_TODO';
+	var TOGGLE_ALL = exports.TOGGLE_ALL = 'TOGGLE_ALL';
 	var DELETE_TODO = exports.DELETE_TODO = 'DELETE_TODO';
 	var COMPLETE_TODO = exports.COMPLETE_TODO = 'COMPLETE_TODO';
 	var SET_DISPLAY_FILTER = exports.SET_DISPLAY_FILTER = 'SET_DISPLAY_FILTER';
@@ -23336,7 +23343,7 @@
 	};
 
 	//添加todo
-	function addTodo(text, key) {
+	function addTodo(text) {
 	    return {
 	        type: ADD_TODO,
 	        text: text
@@ -23361,6 +23368,13 @@
 	    return {
 	        type: DELETE_TODO,
 	        index: index
+	    };
+	}
+	//全选
+	function toggleAll(checked) {
+	    return {
+	        type: TOGGLE_ALL,
+	        isChecked: checked
 	    };
 	}
 
@@ -23403,25 +23417,24 @@
 
 	        return _possibleConstructorReturn(this, (Main.__proto__ || Object.getPrototypeOf(Main)).call(this, props));
 	    }
-	    //全选
-
 
 	    _createClass(Main, [{
-	        key: 'onClickAll',
-	        value: function onClickAll(e) {
-	            console.log('全选');
-	        }
-	    }, {
 	        key: 'render',
 	        value: function render() {
-	            var _this2 = this;
+	            var _props = this.props;
+	            var toggleAll = _props.toggleAll;
+	            var onTodoClick = _props.onTodoClick;
+	            var onDeleteClick = _props.onDeleteClick;
+	            var onToggleClick = _props.onToggleClick;
 
 	            return _react2.default.createElement(
 	                'section',
 	                { id: 'main' },
-	                _react2.default.createElement('input', { type: 'checkbox',
+	                _react2.default.createElement('a', { className: toggleAll ? "icon" : "icon checked",
 	                    id: 'toggle_all',
-	                    onClick: this.onClickAll
+	                    onClick: function onClick() {
+	                        return onToggleClick(toggleAll);
+	                    }
 	                }),
 	                _react2.default.createElement(
 	                    'ul',
@@ -23431,10 +23444,10 @@
 	                            key: index,
 	                            timpIndex: index,
 	                            onClick: function onClick() {
-	                                return _this2.props.onTodoClick(index);
+	                                onTodoClick(index);console.log(index);
 	                            },
 	                            onDelClick: function onDelClick() {
-	                                return _this2.props.onDeleteClick(index);
+	                                return onDeleteClick(index);
 	                            }
 	                        }));
 	                    })
@@ -23489,20 +23502,24 @@
 	            var timpIndex = _props.timpIndex;
 	            var text = _props.text;
 	            var onClick = _props.onClick;
+	            var completed = _props.completed;
 
-	            console.log(timpIndex);
+
 	            return _react2.default.createElement(
 	                "li",
 	                { key: timpIndex,
-	                    className: this.props.completed ? "completed" : ""
+	                    className: completed ? "completed" : ""
 	                },
 	                _react2.default.createElement(
 	                    "div",
 	                    null,
-	                    _react2.default.createElement("input", { type: "checkbox",
-	                        className: "toggle",
-	                        onClick: onClick
-	                    }),
+	                    _react2.default.createElement(
+	                        "div",
+	                        { className: "toggle" },
+	                        _react2.default.createElement("a", { className: completed ? "icon checked" : "icon",
+	                            onClick: onClick
+	                        })
+	                    ),
 	                    _react2.default.createElement(
 	                        "label",
 	                        null,
@@ -23662,7 +23679,6 @@
 	        case _action.ADD_TODO:
 	            return [].concat(_toConsumableArray(state), [{
 	                text: action.text,
-	                //key: action.key,
 	                completed: false
 	            }]);
 	        case _action.DELETE_TODO:
@@ -23672,6 +23688,13 @@
 	            Object.assign({}, state[action.index], {
 	                completed: !state[action.index].completed //当前位置的completed设置为true/false，
 	            })], _toConsumableArray(state.slice(action.index + 1)));
+	        case _action.TOGGLE_ALL:
+	            return state.map(function (row) {
+	                return {
+	                    text: row.text,
+	                    completed: action.isChecked
+	                };
+	            });
 	        default:
 	            return state;
 	    }
