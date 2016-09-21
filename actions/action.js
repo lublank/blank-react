@@ -1,5 +1,11 @@
+/**
+ * action文件，Action向store派发指令，action函数会返回一个带有type的Object，
+ * store将会根据不同的type来执行相应的方法。
+ * @type {string}
+ */
 //action静态类型
 export const ADD_TODO = 'ADD_TODO';
+export const DELETE_TODO = 'DELETE_TODO';
 export const COMPLETE_TODO = 'COMPLETE_TODO';
 export const SET_DISPLAY_FILTER = 'SET_DISPLAY_FILTER';
 
@@ -10,24 +16,31 @@ export const DisplayFilter = {
     SHOW_COMPLETED: "SHOW_COMPLETED"
 };
 
-//action 创建函数
-export function addTodo(text) {
+//添加todo
+export function addTodo(text, key) {
     return {
         type: ADD_TODO,
         text
     }
 }
-
+//标记完成todo
 export function completeTodo(index) {
     return {
         type: COMPLETE_TODO,
         index
     }
 }
-
+//切换展示todo
 export function setDisplayFilter(filter) {
     return {
         type: SET_DISPLAY_FILTER,
         filter
+    }
+}
+//删除todo
+export function deleteTodo(index) {
+    return {
+        type: DELETE_TODO,
+        index
     }
 }

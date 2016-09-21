@@ -6,15 +6,25 @@ class ListItem extends React.Component {
         super(props);
     }
     render() {
+        let {
+            timpIndex,
+            text,
+            onClick
+        } = this.props;
+console.log(timpIndex);
         return (
-            <li className={this.props.completed ? "completed" : ""}>
+            <li key={timpIndex}
+                className={this.props.completed ? "completed" : ""}
+                >
                 <div>
                     <input type="checkbox"
                            className="toggle"
-                           onClick={this.props.onClick}
+                           onClick={onClick}
                     />
-                        <label>{this.props.text}</label>
-                        <button className="destroy"></button>
+                        <label>{text}</label>
+                        <button className="destroy"
+                                onClick={this.props.onDelClick}
+                        ></button>
                 </div>
             </li>
         );

@@ -1,6 +1,12 @@
+/**
+ * Reducer文件，Redux有且只有一个State状态树，Reducers就是负责整理整个State树的，
+ * Reducers可以被分成一个个Reducer。
+ * Redux提供的combineReducers函数可以帮助我们把reducer组合在一起，这样就可以把Reducers拆分成一个个小的Reducer来管理Store了。
+ */
 import {combineReducers} from 'redux';
 import {
     ADD_TODO,
+    DELETE_TODO,
     COMPLETE_TODO,
     SET_DISPLAY_FILTER,
     DisplayFilter
@@ -15,7 +21,11 @@ function displayFilter(state = SHOW_ALL, action) {
             return state;
     }
 }
-//todo操作reducer设置状态
+/**
+ * reducer修改state状态，返回新的state，
+ * 传入两个参数：state、action
+ */
+
 function todos(state = [], action) {
     switch (action.type) {
         case ADD_TODO:
@@ -23,8 +33,14 @@ function todos(state = [], action) {
                 ...state,
                 {
                     text: action.text,
+                    //key: action.key,
                     completed: false
                 }
+            ];
+        case DELETE_TODO:
+            return [
+                ...state.slice(0, action.index),    //先把当前位置的前面部分截取，
+                ...state.slice(action.index + 1)    //再把当前位置的后面部分接上
             ];
         case COMPLETE_TODO:
             return [

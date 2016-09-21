@@ -70,12 +70,27 @@
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+	/**
+	 * 创建store, 传入两个参数，
+	 * 参数1: reducer 用来修改state，
+	 * 参数2(可选): [], 默认的state值,如果不传, 则为undefined
+	 */
 	var store = (0, _redux.createStore)(_reducers2.default);
+
+	/**
+	 * 通过 store.getState() 可以获取当前store的状态(state)
+	 * @type {Element}
+	 */
+	/**
+	 * main.js入口文件，把App和redux建立联系，Provider是react-redux的组件，
+	 * 用于将store和视图绑定在一起，Store就是那个唯一的State树。当Store发生变化时，
+	 * 整个App就会做出相应的变化，这里的会传进Provider的props.children里。
+	 */
 	var rootElement = document.getElementById('app');
 	_reactDom2.default.render(_react2.default.createElement(
-	    _reactRedux.Provider,
-	    { store: store },
-	    _react2.default.createElement(_App2.default, null)
+	  _reactRedux.Provider,
+	  { store: store },
+	  _react2.default.createElement(_App2.default, null)
 	), rootElement);
 
 /***/ },
@@ -23107,21 +23122,42 @@
 	            var _props = this.props;
 	            var dispatch = _props.dispatch;
 	            var visibleTodos = _props.visibleTodos;
+	            var itemLeft = _props.itemLeft;
+	            var emptyTodos = _props.emptyTodos;
 	            var displayFilter = _props.displayFilter;
 
-	            console.log('列表', visibleTodos);
+
+	            var todoList = '',
+	                todoFooter = void 0;
+	            //当有list时才显示main列表
+	            if (visibleTodos.length > 0) {
+	                todoList = _react2.default.createElement(_todoMain2.default, { todos: visibleTodos,
+	                    onTodoClick: function onTodoClick(index) {
+	                        return dispatch((0, _action.completeTodo)(index));
+	                    },
+	                    onDeleteClick: function onDeleteClick(index) {
+	                        return dispatch((0, _action.deleteTodo)(index));
+	                    }
+	                });
+	            }
+
+	            if (emptyTodos) {
+	                todoFooter = _react2.default.createElement(_todoFooter2.default, { itemLeft: itemLeft,
+	                    filter: displayFilter,
+	                    onSetFilter: function onSetFilter(filter) {
+	                        return dispatch((0, _action.setDisplayFilter)(filter));
+	                    }
+	                });
+	            }
+
 	            return _react2.default.createElement(
 	                'section',
 	                { id: 'todo_app' },
 	                _react2.default.createElement(_todoHeader2.default, { onAddTodo: function onAddTodo(text) {
 	                        return dispatch((0, _action.addTodo)(text));
 	                    } }),
-	                _react2.default.createElement(_todoMain2.default, { todos: visibleTodos,
-	                    onTodoClick: function onTodoClick(index) {
-	                        return dispatch((0, _action.completeTodo)(index));
-	                    }
-	                }),
-	                _react2.default.createElement(_todoFooter2.default, null)
+	                todoList,
+	                todoFooter
 	            );
 	        }
 	    }]);
@@ -23146,15 +23182,29 @@
 	            });
 	    }
 	}
-
-	function checked(state) {
+	//计算剩余任务数
+	function getItemLeft(todos) {
+	    var activeList = todos.filter(function (todo) {
+	        return !todo.completed;
+	    });
+	    return activeList.length;
+	}
+	//which props do we want to inject.
+	function injectState(state) {
+	    //console.log(state);
 	    return {
-	        visibleTodos: checkTodos(state.todos, state.displayFilter),
-	        displayFilter: state.displayFilter
+	        visibleTodos: checkTodos(state.todos, state.displayFilter), //当前状态下要显示的列表
+	        displayFilter: state.displayFilter, //当前状态
+	        emptyTodos: state.todos.length, //是否有todo list，用于是否显示footer
+	        itemLeft: getItemLeft(state.todos)
 	    };
 	}
 
-	exports.default = (0, _reactRedux.connect)(checked)(App);
+	/**
+	 * 注入 dispatch 和 state 到其默认的 connect(checked)(App) 中
+	 * 通过react-redux提供的connect函数把state和action转换为当前组件所需要的props
+	 */
+	exports.default = (0, _reactRedux.connect)(injectState)(App);
 
 /***/ },
 /* 197 */
@@ -23210,9 +23260,12 @@
 	            if (e.keyCode === ENTER_KEY_CODE) {
 	                var node = this.refs.input;
 	                var text = node.value.trim();
-	                console.log(text);
-	                this.props.onAddTodo(text);
-	                node.value = '';
+	                if (text !== '') {
+	                    //获取当前时间戳，以作为key
+	                    //let timeStamp = Date.parse(new Date());
+	                    this.props.onAddTodo(text);
+	                    node.value = '';
+	                }
 	            }
 	        }
 	    }, {
@@ -23263,8 +23316,15 @@
 	exports.addTodo = addTodo;
 	exports.completeTodo = completeTodo;
 	exports.setDisplayFilter = setDisplayFilter;
+	exports.deleteTodo = deleteTodo;
+	/**
+	 * action文件，Action向store派发指令，action函数会返回一个带有type的Object，
+	 * store将会根据不同的type来执行相应的方法。
+	 * @type {string}
+	 */
 	//action静态类型
 	var ADD_TODO = exports.ADD_TODO = 'ADD_TODO';
+	var DELETE_TODO = exports.DELETE_TODO = 'DELETE_TODO';
 	var COMPLETE_TODO = exports.COMPLETE_TODO = 'COMPLETE_TODO';
 	var SET_DISPLAY_FILTER = exports.SET_DISPLAY_FILTER = 'SET_DISPLAY_FILTER';
 
@@ -23275,25 +23335,32 @@
 	    SHOW_COMPLETED: "SHOW_COMPLETED"
 	};
 
-	//action 创建函数
-	function addTodo(text) {
+	//添加todo
+	function addTodo(text, key) {
 	    return {
 	        type: ADD_TODO,
 	        text: text
 	    };
 	}
-
+	//标记完成todo
 	function completeTodo(index) {
 	    return {
 	        type: COMPLETE_TODO,
 	        index: index
 	    };
 	}
-
+	//切换展示todo
 	function setDisplayFilter(filter) {
 	    return {
 	        type: SET_DISPLAY_FILTER,
 	        filter: filter
+	    };
+	}
+	//删除todo
+	function deleteTodo(index) {
+	    return {
+	        type: DELETE_TODO,
+	        index: index
 	    };
 	}
 
@@ -23336,8 +23403,15 @@
 
 	        return _possibleConstructorReturn(this, (Main.__proto__ || Object.getPrototypeOf(Main)).call(this, props));
 	    }
+	    //全选
+
 
 	    _createClass(Main, [{
+	        key: 'onClickAll',
+	        value: function onClickAll(e) {
+	            console.log('全选');
+	        }
+	    }, {
 	        key: 'render',
 	        value: function render() {
 	            var _this2 = this;
@@ -23355,8 +23429,12 @@
 	                    this.props.todos.map(function (todo, index) {
 	                        return _react2.default.createElement(_todoItem2.default, _extends({}, todo, {
 	                            key: index,
+	                            timpIndex: index,
 	                            onClick: function onClick() {
 	                                return _this2.props.onTodoClick(index);
+	                            },
+	                            onDelClick: function onDelClick() {
+	                                return _this2.props.onDeleteClick(index);
 	                            }
 	                        }));
 	                    })
@@ -23407,22 +23485,32 @@
 	    _createClass(ListItem, [{
 	        key: "render",
 	        value: function render() {
+	            var _props = this.props;
+	            var timpIndex = _props.timpIndex;
+	            var text = _props.text;
+	            var onClick = _props.onClick;
+
+	            console.log(timpIndex);
 	            return _react2.default.createElement(
 	                "li",
-	                { className: this.props.completed ? "completed" : "" },
+	                { key: timpIndex,
+	                    className: this.props.completed ? "completed" : ""
+	                },
 	                _react2.default.createElement(
 	                    "div",
 	                    null,
 	                    _react2.default.createElement("input", { type: "checkbox",
 	                        className: "toggle",
-	                        onClick: this.props.onClick
+	                        onClick: onClick
 	                    }),
 	                    _react2.default.createElement(
 	                        "label",
 	                        null,
-	                        this.props.text
+	                        text
 	                    ),
-	                    _react2.default.createElement("button", { className: "destroy" })
+	                    _react2.default.createElement("button", { className: "destroy",
+	                        onClick: this.props.onDelClick
+	                    })
 	                )
 	            );
 	        }
@@ -23437,7 +23525,7 @@
 /* 201 */
 /***/ function(module, exports, __webpack_require__) {
 
-	"use strict";
+	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
 	    value: true
@@ -23466,58 +23554,56 @@
 
 	        return _possibleConstructorReturn(this, (Footer.__proto__ || Object.getPrototypeOf(Footer)).call(this, props));
 	    }
+	    //组装li
+
 
 	    _createClass(Footer, [{
-	        key: "render",
+	        key: 'liList',
+	        value: function liList(filter, name) {
+	            var _this2 = this;
+
+	            return _react2.default.createElement(
+	                'li',
+	                null,
+	                _react2.default.createElement(
+	                    'a',
+	                    { href: '#' + name,
+	                        className: filter === this.props.filter ? "selected" : "",
+	                        onClick: function onClick(e) {
+	                            e.preventDefault();
+	                            _this2.props.onSetFilter(filter);
+	                        } },
+	                    name
+	                )
+	            );
+	        }
+	    }, {
+	        key: 'render',
 	        value: function render() {
 	            return _react2.default.createElement(
-	                "footer",
-	                { id: "footer" },
+	                'footer',
+	                { id: 'footer' },
 	                _react2.default.createElement(
-	                    "span",
-	                    { id: "todo_count" },
+	                    'span',
+	                    { id: 'todo_count' },
 	                    _react2.default.createElement(
-	                        "strong",
+	                        'strong',
 	                        null,
-	                        "0"
+	                        this.props.itemLeft
 	                    ),
-	                    " items left"
+	                    ' items left'
 	                ),
 	                _react2.default.createElement(
-	                    "ul",
-	                    { id: "filters" },
-	                    _react2.default.createElement(
-	                        "li",
-	                        null,
-	                        _react2.default.createElement(
-	                            "a",
-	                            { href: "javascript:", "data-id": "all", className: "selected" },
-	                            "All"
-	                        )
-	                    ),
-	                    _react2.default.createElement(
-	                        "li",
-	                        null,
-	                        _react2.default.createElement(
-	                            "a",
-	                            { href: "javascript:", "data-id": "active", className: "" },
-	                            "Active"
-	                        )
-	                    ),
-	                    _react2.default.createElement(
-	                        "li",
-	                        null,
-	                        _react2.default.createElement(
-	                            "a",
-	                            { href: "javascript:", "data-id": "completed", className: "" },
-	                            "Completed"
-	                        )
-	                    )
+	                    'ul',
+	                    { id: 'filters' },
+	                    this.liList('SHOW_ALL', 'All'),
+	                    this.liList('SHOW_ACTIVE', 'Active'),
+	                    this.liList('SHOW_COMPLETED', 'Completed')
 	                ),
 	                _react2.default.createElement(
-	                    "button",
-	                    { id: "clear_completed" },
-	                    "Clear completed"
+	                    'button',
+	                    { id: 'clear_completed' },
+	                    'Clear completed'
 	                )
 	            );
 	        }
@@ -23542,7 +23628,12 @@
 
 	var _action = __webpack_require__(198);
 
-	function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+	function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } } /**
+	                                                                                                                                                                                                     * Reducer文件，Redux有且只有一个State状态树，Reducers就是负责整理整个State树的，
+	                                                                                                                                                                                                     * Reducers可以被分成一个个Reducer。
+	                                                                                                                                                                                                     * Redux提供的combineReducers函数可以帮助我们把reducer组合在一起，这样就可以把Reducers拆分成一个个小的Reducer来管理Store了。
+	                                                                                                                                                                                                     */
+
 
 	var SHOW_ALL = _action.DisplayFilter.SHOW_ALL;
 
@@ -23558,7 +23649,11 @@
 	            return state;
 	    }
 	}
-	//todo操作reducer设置状态
+	/**
+	 * reducer修改state状态，返回新的state，
+	 * 传入两个参数：state、action
+	 */
+
 	function todos() {
 	    var state = arguments.length <= 0 || arguments[0] === undefined ? [] : arguments[0];
 	    var action = arguments[1];
@@ -23567,8 +23662,11 @@
 	        case _action.ADD_TODO:
 	            return [].concat(_toConsumableArray(state), [{
 	                text: action.text,
+	                //key: action.key,
 	                completed: false
 	            }]);
+	        case _action.DELETE_TODO:
+	            return [].concat(_toConsumableArray(state.slice(0, action.index)), _toConsumableArray(state.slice(action.index + 1)));
 	        case _action.COMPLETE_TODO:
 	            return [].concat(_toConsumableArray(state.slice(0, action.index)), [//先把当前位置的前面部分截取，
 	            Object.assign({}, state[action.index], {

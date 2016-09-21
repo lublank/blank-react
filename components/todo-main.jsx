@@ -7,6 +7,10 @@ class Main extends React.Component {
     constructor(props) {
         super(props);
     }
+    //全选
+    onClickAll(e) {
+        console.log('全选');
+    }
     render() {
         return (
             <section id="main">
@@ -14,14 +18,16 @@ class Main extends React.Component {
                        id="toggle_all"
                        onClick={this.onClickAll}
                 />
-                    <ul id="todo_list">
-                        {this.props.todos.map((todo, index) =>
-                            <ListItem {...todo}
-                                key={index}
-                                onClick={() => this.props.onTodoClick(index)}
-                            />
-                        )}
-                    </ul>
+                <ul id="todo_list">
+                    {this.props.todos.map((todo, index) =>
+                        <ListItem {...todo}
+                            key={index}
+                            timpIndex={index}
+                            onClick={() => this.props.onTodoClick(index)}
+                            onDelClick={() => this.props.onDeleteClick(index)}
+                        />
+                    )}
+                </ul>
             </section>
         );
     }

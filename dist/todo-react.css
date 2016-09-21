@@ -20,6 +20,7 @@ body {
   background: #fff;
   margin: 130px 0 40px 0;
   position: relative;
+  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.2), 0 25px 50px 0 rgba(0, 0, 0, 0.1);
 }
 #header h1 {
   position: absolute;
@@ -29,10 +30,12 @@ body {
   font-weight: 100;
   text-align: center;
   color: #ECCECE;
+  text-shadow: -1px 0 #b19e9e, /*向左阴影*/ 0 -1px #b19e9e, /*向上阴影*/ 1px 0 #f5f5f5, /*向右阴影*/ 0 1px #f5f5f5;
+  /*向下阴影*/
 }
 #new_todo {
   padding: 16px 16px 16px 60px;
-  border: none;
+  border: 1px solid #eee;
   background: rgba(0, 0, 0, 0.003);
   position: relative;
   margin: 0;
@@ -139,7 +142,6 @@ input[type="checkbox"] {
   outline: none;
 }
 #footer {
-  display: none;
   color: #777;
   padding: 10px 15px;
   height: 20px;

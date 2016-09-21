@@ -5,6 +5,7 @@ import Main from './components/todo-main.jsx';
 import Footer from './components/todo-footer.jsx';
 import {
     addTodo,
+    deleteTodo,
     completeTodo,
     setDisplayFilter,
     DisplayFilter
@@ -15,16 +16,33 @@ class App extends React.Component {
         const {
             dispatch,
             visibleTodos,
+            itemLeft,
+            emptyTodos,
             displayFilter
         } = this.props;
-        console.log('列表', visibleTodos);
+
+        let todoList = '',
+            todoFooter;
+        //当有list时才显示main列表
+        if(visibleTodos.length > 0) {
+            todoList = <Main todos={visibleTodos}
+                             onTodoClick={index => dispatch(completeTodo(index))}
+                             onDeleteClick={index => dispatch(deleteTodo(index))}
+                        />;
+        }
+
+        if(emptyTodos) {
+            todoFooter = <Footer itemLeft={itemLeft}
+                                 filter={displayFilter}
+                                 onSetFilter={filter => dispatch(setDisplayFilter(filter))}
+                        />;
+        }
+
         return (
             <section id="todo_app">
                 <Header onAddTodo={text => dispatch(addTodo(text))}/>
-                <Main todos={visibleTodos}
-                      onTodoClick={index => dispatch(completeTodo(index))}
-                />
-                <Footer />
+                {todoList}
+                {todoFooter}
             </section>
         );
     }
@@ -41,12 +59,24 @@ function checkTodos(todos, filter) {
             return todos.filter(todo => todo.completed);
     }
 }
-
-function checked(state) {
+//计算剩余任务数
+function getItemLeft(todos) {
+    let activeList = todos.filter(todo => !todo.completed);
+    return activeList.length;
+}
+//which props do we want to inject.
+function injectState(state) {
+    //console.log(state);
     return {
-        visibleTodos: checkTodos(state.todos, state.displayFilter),
-        displayFilter: state.displayFilter
+        visibleTodos: checkTodos(state.todos, state.displayFilter), //当前状态下要显示的列表
+        displayFilter: state.displayFilter,  //当前状态
+        emptyTodos: state.todos.length, //是否有todo list，用于是否显示footer
+        itemLeft: getItemLeft(state.todos)
     }
 }
 
-export default connect(checked)(App);
+/**
+ * 注入 dispatch 和 state 到其默认的 connect(checked)(App) 中
+ * 通过react-redux提供的connect函数把state和action转换为当前组件所需要的props
+ */
+export default connect(injectState)(App);

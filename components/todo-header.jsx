@@ -18,9 +18,12 @@ class Header extends React.Component {
         if (e.keyCode === ENTER_KEY_CODE) {
             let node = this.refs.input;
             let text = node.value.trim();
-            console.log(text);
-            this.props.onAddTodo(text);
-            node.value = '';
+            if(text !== '') {
+                //获取当前时间戳，以作为key
+                //let timeStamp = Date.parse(new Date());
+                this.props.onAddTodo(text);
+                node.value = '';
+            }
         }
     }
 
