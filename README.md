@@ -6,3 +6,5 @@ react practice, An example TodoMVC with React, Redux, Webpack.
 `webpack`
 ###运行服务
 `npm start`
+###访问
+`localhost:8080`
